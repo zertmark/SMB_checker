@@ -1,0 +1,51 @@
+#!/bin/python3
+import struct
+import socket
+import tkinter
+from tkinter import *
+from tkinter import messagebox
+import os
+def create_window():
+ global ip
+ window=Tk()
+ window.title("CVE_2020_0796 Scanner by Zert")
+ window.geometry('400x150')
+ #window.config(bg='black') 
+ lbl = Label(window, text="Enter IP", font=("Arial Bold Italic", 10))
+ lbl.place(x=173,y=1)
+ ip=Entry(window,width=25)
+ ip.place(x=100,y=20)
+ btn = Button(window, text="SCAN",fg='green',command=read_payload)
+ btn.place(x=175,y=70)
+ window.resizable(False,False)
+ window.mainloop()
+def read_payload():
+ global payload
+ with open('payload.txt','rb') as payload_file:
+  payload=payload_file.read()
+ show_text("Payload info",'Payload loaded')
+ exploit()
+def show_text(title,text):
+ messagebox.showinfo(title,text)
+def exploit():
+ connection=socket.socket(socket.AF_INET)
+ if ip.get() !="":
+  try:
+   connection.connect((ip.get(),455))
+   show_text("Payload info",'Sending payload...')
+   connection.send(payload)
+   nb, = struct.unpack(">I", connection.recv(4))
+   response = connection.recv(nb)
+   check_vuln(response)
+  except:
+   show_text("Error",'Connection error')
+ else:
+  show_text("Error",'Empty IP')
+def check_vulnerability(response):
+ if response[68:70] != b"\x11\x03" or response [70:72] != b"\x02\x00":
+  show_text("SMB info","Vulnerability was found")
+ else:
+  show_text("SMB info","Vulnerability wasn't found")
+def main():
+ create_window()
+main()
