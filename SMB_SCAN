@@ -36,7 +36,7 @@ def exploit():
    connection.send(payload)
    nb, = struct.unpack(">I", connection.recv(4))
    response = connection.recv(nb)
-   check_vuln(response)
+   check_vulnerability(response)
   except:
    show_text("Error",'Connection error')
  else:
